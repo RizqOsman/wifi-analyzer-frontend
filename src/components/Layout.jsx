@@ -34,14 +34,21 @@ const Layout = () => {
   ];
 
   const handleLogout = async () => {
-    await logout();
-    navigate('/login');
+    try {
+      await logout();
+      // Force reload untuk memastikan state benar-benar clear
+      window.location.href = '/login';
+    } catch (error) {
+      console.error('Logout failed:', error);
+      // Tetap redirect meskipun ada error
+      window.location.href = '/login';
+    }
   };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-dark-900 via-dark-800 to-dark-900">
       <div className="fixed inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-neon-blue/5 via-transparent to-transparent pointer-events-none" />
-      
+
       <nav className="fixed top-0 w-full z-50 glass-effect border-b border-neon-blue/20">
         <div className="px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
@@ -59,7 +66,7 @@ const Layout = () => {
                 </span>
               </div>
             </div>
-            
+
             <div className="flex items-center gap-4">
               <Link
                 to="/profile"
@@ -97,16 +104,15 @@ const Layout = () => {
                 {menuItems.map((item) => {
                   const Icon = item.icon;
                   const isActive = location.pathname === item.path;
-                  
+
                   return (
                     <Link
                       key={item.path}
                       to={item.path}
-                      className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-all ${
-                        isActive
+                      className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-all ${isActive
                           ? 'bg-neon-blue/20 text-neon-blue neon-glow'
                           : 'hover:bg-white/5 text-gray-300 hover:text-white'
-                      }`}
+                        }`}
                     >
                       <Icon size={20} />
                       <span className="font-medium">{item.label}</span>
@@ -119,9 +125,8 @@ const Layout = () => {
         </AnimatePresence>
 
         <main
-          className={`flex-1 p-4 sm:p-6 lg:p-8 transition-all duration-300 ${
-            sidebarOpen ? 'ml-64' : 'ml-0'
-          }`}
+          className={`flex-1 p-4 sm:p-6 lg:p-8 transition-all duration-300 ${sidebarOpen ? 'ml-64' : 'ml-0'
+            }`}
         >
           <motion.div
             initial={{ opacity: 0, y: 20 }}

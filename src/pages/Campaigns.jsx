@@ -17,6 +17,8 @@ const Campaigns = () => {
   const [selectedCampaign, setSelectedCampaign] = useState(null);
   const [campaignData, setCampaignData] = useState(null);
   const [showDataModal, setShowDataModal] = useState(false);
+  const [isScanning, setIsScanning] = useState(false);
+  const [activeCampaignId, setActiveCampaignId] = useState(null);
 
   useEffect(() => {
     fetchCampaigns();
@@ -25,7 +27,13 @@ const Campaigns = () => {
   const fetchCampaigns = async () => {
     try {
       const response = await campaignsAPI.getList();
-      setCampaigns(response.campaign || []);
+      const campaignList = response.campaign || [];
+      setCampaigns(campaignList);
+
+      // Check if any campaign is active/scanning
+      const activeCampaign = campaignList.find(c => c.status === 'active');
+      setIsScanning(!!activeCampaign);
+      setActiveCampaignId(activeCampaign?.id || null);
     } catch (error) {
       toast.error('Failed to load campaigns');
     } finally {
@@ -62,11 +70,50 @@ const Campaigns = () => {
 
   const handleStop = async () => {
     try {
-      await campaignsAPI.stop();
+      console.log('Stopping campaign...');
+      const response = await campaignsAPI.stop();
+      console.log('Stop response:', response);
+
       toast.success('Campaign stopped successfully');
-      fetchCampaigns();
+
+      // Reset state immediately untuk UI responsiveness
+      setIsScanning(false);
+      setActiveCampaignId(null);
+
+      // WORKAROUND: Backend tidak update status campaign
+      // Manually update campaign status di frontend
+      setCampaigns(prevCampaigns =>
+        prevCampaigns.map(campaign =>
+          campaign.status === 'active'
+            ? { ...campaign, status: 'inactive' }
+            : campaign
+        )
+      );
+
+      console.log('Campaign status manually updated to inactive');
     } catch (error) {
+      console.error('Stop error:', error);
       toast.error('Failed to stop campaign');
+    }
+  };
+
+  // Toggle function untuk start/stop scan
+  const handleToggleScan = async () => {
+    if (isScanning) {
+      // Stop scanning
+      await handleStop();
+    } else {
+      // Start scanning - ambil campaign terakhir atau yang pertama
+      if (campaigns.length > 0) {
+        const sortedCampaigns = [...campaigns].sort((a, b) => {
+          const dateA = new Date(a.created_at || a.timestamp || 0);
+          const dateB = new Date(b.created_at || b.timestamp || 0);
+          return dateB - dateA;
+        });
+        await handleStart(sortedCampaigns[0].id);
+      } else {
+        toast.error('No campaigns available. Please create a campaign first.');
+      }
     }
   };
 
@@ -105,15 +152,14 @@ const Campaigns = () => {
   const columns = [
     { header: 'ID', accessor: 'id' },
     { header: 'Name', accessor: 'name' },
-    { 
-      header: 'Status', 
+    {
+      header: 'Status',
       accessor: 'status',
       render: (row) => (
-        <span className={`px-3 py-1 rounded-full text-sm ${
-          row.status === 'active' 
-            ? 'bg-neon-green/20 text-neon-green' 
-            : 'bg-gray-500/20 text-gray-400'
-        }`}>
+        <span className={`px-3 py-1 rounded-full text-sm ${row.status === 'active'
+          ? 'bg-neon-green/20 text-neon-green'
+          : 'bg-gray-500/20 text-gray-400'
+          }`}>
           {row.status}
         </span>
       )
@@ -124,11 +170,18 @@ const Campaigns = () => {
         <div className="flex gap-2">
           <Button
             size="sm"
-            variant="success"
-            icon={Play}
-            onClick={(e) => { e.stopPropagation(); handleStart(row.id); }}
+            variant={row.status === 'active' ? 'danger' : 'success'}
+            icon={row.status === 'active' ? Square : Play}
+            onClick={(e) => {
+              e.stopPropagation();
+              if (row.status === 'active') {
+                handleStop();
+              } else {
+                handleStart(row.id);
+              }
+            }}
           >
-            Start
+            {row.status === 'active' ? 'Stop' : 'Start'}
           </Button>
           <Button
             size="sm"
@@ -151,6 +204,7 @@ const Campaigns = () => {
             variant="danger"
             icon={Trash2}
             onClick={(e) => { e.stopPropagation(); handleDelete(row.id); }}
+            disabled={row.status === 'active'}
           >
             Delete
           </Button>
@@ -169,22 +223,13 @@ const Campaigns = () => {
             <p className="text-gray-400">Manage your scanning campaigns</p>
           </div>
         </div>
-        <div className="flex gap-2">
-          <Button
-            variant="secondary"
-            icon={Square}
-            onClick={handleStop}
-          >
-            Stop Scanning
-          </Button>
-          <Button
-            variant="primary"
-            icon={Plus}
-            onClick={() => setShowCreateModal(true)}
-          >
-            Create Campaign
-          </Button>
-        </div>
+        <Button
+          variant="primary"
+          icon={Plus}
+          onClick={() => setShowCreateModal(true)}
+        >
+          Create Campaign
+        </Button>
       </div>
 
       <Card>

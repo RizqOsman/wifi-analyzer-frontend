@@ -22,17 +22,32 @@ const Dashboard = () => {
 
   const fetchStats = async () => {
     try {
-      const [campaignsRes, networksRes, attacksRes, rogueRes] = await Promise.all([
-        campaignsAPI.getList(),
-        wifiAPI.getNetworks(),
+      // LANGKAH 1: Ambil campaigns terlebih dahulu
+      const campaignsRes = await campaignsAPI.getList();
+      const campaigns = campaignsRes.campaign || [];
+
+      // LANGKAH 2: Dapatkan campaign terakhir
+      let latestCampaignId = null;
+      if (campaigns.length > 0) {
+        const sortedCampaigns = campaigns.sort((a, b) => {
+          const dateA = new Date(a.created_at || a.timestamp || 0);
+          const dateB = new Date(b.created_at || b.timestamp || 0);
+          return dateB - dateA;
+        });
+        latestCampaignId = sortedCampaigns[0].id;
+      }
+
+      // LANGKAH 3: Fetch data lainnya (networks dengan campaign ID)
+      const [networksRes, attacksRes, rogueRes] = await Promise.all([
+        latestCampaignId ? wifiAPI.getNetworks(latestCampaignId) : Promise.resolve([]),
         attacksAPI.getActive(),
         campaignsAPI.getRogueAp(),
       ]);
 
       setStats({
-        campaigns: campaignsRes.campaign?.length || 0,
-        networks: Array.isArray(networksRes) ? networksRes.length : 0,
-        activeAttacks: Array.isArray(attacksRes) ? attacksRes.length : 0,
+        campaigns: campaigns.length || 0,
+        networks: Array.isArray(networksRes) ? networksRes.length : (networksRes.data?.length || 0),
+        activeAttacks: Array.isArray(attacksRes) ? attacksRes.length : (attacksRes.data?.length || 0),
         rogueAPs: rogueRes.data?.length || 0,
       });
     } catch (error) {
