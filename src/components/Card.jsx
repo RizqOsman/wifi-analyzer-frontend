@@ -1,15 +1,13 @@
 import { motion } from 'framer-motion';
 
-const Card = ({ children, className = '', hover = true, glow = false }) => {
+const Card = ({ children, className = '', ...props }) => {
   return (
-    <motion.div
-      whileHover={hover ? { scale: 1.02, y: -5 } : {}}
-      className={`glass-effect rounded-xl p-6 ${
-        glow ? 'neon-glow' : ''
-      } ${className}`}
+    <div
+      className={`glass-effect rounded-xl p-6 border border-white/5 ${className}`}
+      {...props}
     >
       {children}
-    </motion.div>
+    </div>
   );
 };
 

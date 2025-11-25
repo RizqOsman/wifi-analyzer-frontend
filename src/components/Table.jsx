@@ -3,11 +3,11 @@ const Table = ({ columns, data, onRowClick }) => {
     <div className="overflow-x-auto">
       <table className="w-full">
         <thead>
-          <tr className="border-b border-neon-blue/20">
+          <tr className="border-b border-white/10">
             {columns.map((col, idx) => (
               <th
                 key={idx}
-                className="px-4 py-3 text-left text-sm font-semibold text-neon-blue uppercase tracking-wider"
+                className="px-4 py-3 text-left text-sm font-semibold text-cyan-400 uppercase tracking-wider"
               >
                 {col.header}
               </th>
@@ -29,10 +29,8 @@ const Table = ({ columns, data, onRowClick }) => {
               <tr
                 key={rowIdx}
                 onClick={() => onRowClick?.(row)}
-                className={`
-                  transition-colors
-                  ${onRowClick ? 'hover:bg-white/5 cursor-pointer' : ''}
-                `}
+                className={`transition-colors ${onRowClick ? 'hover:bg-white/5 cursor-pointer' : ''
+                  }`}
               >
                 {columns.map((col, colIdx) => (
                   <td key={colIdx} className="px-4 py-3 text-sm text-gray-300">

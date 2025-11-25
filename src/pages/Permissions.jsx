@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Settings, Plus, Trash2 } from 'lucide-react';
+import { Settings, Plus, Trash2, Lock } from 'lucide-react';
 import toast from 'react-hot-toast';
 import Card from '../components/Card';
 import Button from '../components/Button';
@@ -84,9 +84,9 @@ const Permissions = () => {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
-          <Settings className="text-neon-blue" size={40} />
+          <Lock className="text-cyan-400" size={40} />
           <div>
-            <h1 className="text-3xl font-bold neon-text">Permissions</h1>
+            <h1 className="text-3xl font-bold text-white">Permissions</h1>
             <p className="text-gray-400">Manage system permissions</p>
           </div>
         </div>
@@ -95,7 +95,7 @@ const Permissions = () => {
           icon={Plus}
           onClick={() => setShowCreateModal(true)}
         >
-          Create Permission
+          Add Permission
         </Button>
       </div>
 

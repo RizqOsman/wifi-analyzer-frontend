@@ -11,11 +11,10 @@ const Button = ({
   ...props
 }) => {
   const variants = {
-    primary: 'bg-neon-blue/20 hover:bg-neon-blue/30 text-neon-blue border-neon-blue/50 neon-glow',
-    secondary: 'bg-neon-purple/20 hover:bg-neon-purple/30 text-neon-purple border-neon-purple/50',
-    success: 'bg-neon-green/20 hover:bg-neon-green/30 text-neon-green border-neon-green/50',
-    danger: 'bg-red-500/20 hover:bg-red-500/30 text-red-400 border-red-500/50',
-    ghost: 'bg-white/5 hover:bg-white/10 text-white border-white/20',
+    primary: 'bg-cyan-600 hover:bg-cyan-500 text-white shadow-lg shadow-cyan-500/20 border border-cyan-400/20',
+    secondary: 'bg-dark-800 hover:bg-dark-700 text-cyan-400 border border-cyan-500/30',
+    danger: 'bg-red-500/10 hover:bg-red-500/20 text-red-400 border border-red-500/30',
+    ghost: 'hover:bg-white/5 text-gray-400 hover:text-white',
   };
 
   const sizes = {

@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Lock, Plus, Trash2, Key } from 'lucide-react';
+import { Lock, Plus, Trash2, Key, Shield } from 'lucide-react';
 import toast from 'react-hot-toast';
 import Card from '../components/Card';
 import Button from '../components/Button';
@@ -115,7 +115,7 @@ const Roles = () => {
             row.permissions.slice(0, 3).map((permission) => (
               <span
                 key={permission.id}
-                className="px-2 py-1 rounded-full bg-neon-green/20 text-neon-green text-xs"
+                className="px-2 py-1 rounded-full bg-emerald-500/20 text-emerald-400 text-xs"
               >
                 {permission.name}
               </span>
@@ -160,10 +160,10 @@ const Roles = () => {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
-          <Lock className="text-neon-blue" size={40} />
+          <Shield className="text-cyan-400" size={40} />
           <div>
-            <h1 className="text-3xl font-bold neon-text">Roles</h1>
-            <p className="text-gray-400">Manage user roles and permissions</p>
+            <h1 className="text-3xl font-bold text-white">Roles</h1>
+            <p className="text-gray-400">Manage roles and permissions</p>
           </div>
         </div>
         <Button
@@ -225,7 +225,7 @@ const Roles = () => {
                   type="checkbox"
                   checked={selectedPermissionIds.includes(permission.id)}
                   onChange={() => togglePermission(permission.id)}
-                  className="w-4 h-4 rounded border-gray-600 text-neon-blue focus:ring-neon-blue"
+                  className="w-4 h-4 rounded border-gray-600 text-cyan-400 focus:ring-cyan-400"
                 />
                 <span className="flex-1">{permission.name}</span>
               </label>

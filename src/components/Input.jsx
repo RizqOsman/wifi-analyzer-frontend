@@ -20,13 +20,13 @@ const Input = ({
         )}
         <input
           className={`
-            w-full px-4 py-2 rounded-lg glass-effect
-            border border-white/10 focus:border-neon-blue/50
-            bg-dark-800/50 text-white placeholder-gray-500
-            focus:outline-none focus:ring-2 focus:ring-neon-blue/20
-            transition-all
-            ${Icon ? 'pl-10' : ''}
-            ${error ? 'border-red-500/50' : ''}
+            block w-full rounded-lg border border-gray-700 bg-dark-800/50 
+            text-gray-100 placeholder-gray-500
+            focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500
+            transition-colors duration-200
+            ${Icon ? 'pl-10' : 'pl-4'}
+            ${error ? 'border-red-500 focus:border-red-500 focus:ring-red-500' : ''}
+            ${className}
           `}
           {...props}
         />

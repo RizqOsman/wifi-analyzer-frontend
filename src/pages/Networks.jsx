@@ -18,6 +18,7 @@ const Networks = () => {
   // --- STATE MANAGEMENT ---
   const [networks, setNetworks] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [actionLoading, setActionLoading] = useState(null); // Track action loading
   const [selectedNetwork, setSelectedNetwork] = useState(null);
   const [inspectData, setInspectData] = useState(null);
   const [showInspectModal, setShowInspectModal] = useState(false);
@@ -110,6 +111,7 @@ const Networks = () => {
   // --- ACTION HANDLERS ---
 
   const handleInspect = async (network) => {
+    setActionLoading(`inspect-${network.id}`);
     try {
       // Mengambil detail spesifik dari network agent
       const response = await wifiAPI.inspect(network.id);
@@ -119,12 +121,15 @@ const Networks = () => {
     } catch (error) {
       console.error("Inspect Error:", error);
       toast.error('Could not fetch inspection details');
+    } finally {
+      setActionLoading(null);
     }
   };
 
   const handleAttack = async (id) => {
     if (!confirm('SECURITY WARNING: Initiate deauthentication protocol on this target?')) return;
 
+    setActionLoading(`attack-${id}`);
     try {
       await wifiAPI.attack(id);
       toast.success('Attack command initiated');
@@ -139,10 +144,13 @@ const Networks = () => {
     } catch (error) {
       console.error("Attack Error:", error);
       toast.error('Agent failed to execute attack command');
+    } finally {
+      setActionLoading(null);
     }
   };
 
   const handleStop = async (id) => {
+    setActionLoading(`stop-${id}`);
     try {
       await wifiAPI.stop(id);
       toast.success('Attack process terminated');
@@ -155,6 +163,8 @@ const Networks = () => {
     } catch (error) {
       console.error("Stop Error:", error);
       toast.error('Failed to stop process');
+    } finally {
+      setActionLoading(null);
     }
   };
 
@@ -232,8 +242,9 @@ const Networks = () => {
           icon={Eye}
           onClick={(e) => { e.stopPropagation(); handleInspect(row); }}
           className="text-cyan-400 hover:text-cyan-300 hover:bg-cyan-500/10"
+          disabled={actionLoading === `inspect-${row.id}`}
         >
-          Inspect
+          {actionLoading === `inspect-${row.id}` ? '...' : 'Inspect'}
         </Button>
       ),
     },
@@ -250,7 +261,7 @@ const Networks = () => {
             <Wifi className="text-cyan-400" size={32} />
           </div>
           <div>
-            <h1 className="text-2xl font-bold text-white tracking-tight">Network Scanner</h1>
+            <h1 className="text-2xl font-bold text-white tracking-tight">R.A.D.A.R Network Scanner</h1>
             <div className="flex items-center gap-2 text-sm mt-1">
               {sessionStatus === 'active' && (
                 <span className="flex items-center gap-1.5 text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded text-xs border border-emerald-500/20">
@@ -432,16 +443,18 @@ const Networks = () => {
                 className="w-full justify-center"
                 onClick={() => handleAttack(selectedNetwork.id)}
                 icon={Zap}
+                disabled={actionLoading === `attack-${selectedNetwork.id}`}
               >
-                Launch Attack
+                {actionLoading === `attack-${selectedNetwork.id}` ? 'Launching...' : 'Launch Attack'}
               </Button>
               <Button
                 variant="secondary"
                 className="w-full justify-center"
                 onClick={() => handleStop(selectedNetwork.id)}
                 icon={Square}
+                disabled={actionLoading === `stop-${selectedNetwork.id}`}
               >
-                Stop Process
+                {actionLoading === `stop-${selectedNetwork.id}` ? 'Stopping...' : 'Stop Process'}
               </Button>
             </div>
           </div>

@@ -22,7 +22,7 @@ const Profile = () => {
 
   const handleUpdateProfile = async (e) => {
     e.preventDefault();
-    
+
     if (!profileData.name || !profileData.email) {
       toast.error('Name and email are required');
       return;
@@ -45,7 +45,7 @@ const Profile = () => {
 
   const handleChangePassword = async (e) => {
     e.preventDefault();
-    
+
     if (!passwordData.currentPassword || !passwordData.newPassword) {
       toast.error('All password fields are required');
       return;
@@ -88,32 +88,32 @@ const Profile = () => {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center gap-3">
-        <User className="text-neon-blue" size={40} />
+      <div className="flex items-center gap-3 mb-8">
+        <div className="p-3 rounded-full bg-cyan-500/10 border border-cyan-500/20">
+          <User className="text-cyan-400" size={32} />
+        </div>
         <div>
-          <h1 className="text-3xl font-bold neon-text">Profile Settings</h1>
-          <p className="text-gray-400">Manage your account settings</p>
+          <h1 className="text-3xl font-bold text-white">Profile Settings</h1>
+          <p className="text-gray-400">Manage your account preferences</p>
         </div>
       </div>
 
       <div className="flex gap-4 border-b border-white/10">
         <button
           onClick={() => setActiveTab('profile')}
-          className={`px-6 py-3 font-medium transition-colors ${
-            activeTab === 'profile'
-              ? 'text-neon-blue border-b-2 border-neon-blue'
-              : 'text-gray-400 hover:text-white'
-          }`}
+          className={`px-6 py-3 font-medium transition-colors ${activeTab === 'profile'
+            ? 'text-cyan-400 border-b-2 border-cyan-400'
+            : 'text-gray-400 hover:text-white'
+            }`}
         >
           Profile Information
         </button>
         <button
           onClick={() => setActiveTab('password')}
-          className={`px-6 py-3 font-medium transition-colors ${
-            activeTab === 'password'
-              ? 'text-neon-blue border-b-2 border-neon-blue'
-              : 'text-gray-400 hover:text-white'
-          }`}
+          className={`px-6 py-3 font-medium transition-colors ${activeTab === 'password'
+            ? 'text-cyan-400 border-b-2 border-cyan-400'
+            : 'text-gray-400 hover:text-white'
+            }`}
         >
           Change Password
         </button>
@@ -123,8 +123,8 @@ const Profile = () => {
         <Card>
           <form onSubmit={handleUpdateProfile} className="space-y-6">
             <div className="flex items-center gap-4 mb-6">
-              <div className="w-20 h-20 rounded-full bg-neon-blue/20 flex items-center justify-center">
-                <User className="text-neon-blue" size={40} />
+              <div className="w-20 h-20 rounded-full bg-cyan-500/20 flex items-center justify-center">
+                <User className="text-cyan-400" size={40} />
               </div>
               <div>
                 <h3 className="text-xl font-bold">{user?.name}</h3>
@@ -216,7 +216,7 @@ const Profile = () => {
               required
             />
 
-            <div className="p-4 rounded-lg bg-neon-blue/10 border border-neon-blue/20">
+            <div className="p-4 rounded-lg bg-cyan-500/10 border border-cyan-500/20">
               <p className="text-sm text-gray-300">
                 <strong>Password Requirements:</strong>
               </p>

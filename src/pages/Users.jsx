@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Users as UsersIcon, Plus, Trash2, Shield } from 'lucide-react';
+import { Users as UsersIcon, Plus, Trash2, Shield, UserPlus } from 'lucide-react';
 import toast from 'react-hot-toast';
 import Card from '../components/Card';
 import Button from '../components/Button';
@@ -120,7 +120,7 @@ const Users = () => {
           {row.roles?.map((role) => (
             <span
               key={role.id}
-              className="px-2 py-1 rounded-full bg-neon-purple/20 text-neon-purple text-xs"
+              className="px-2 py-1 rounded-full bg-violet-500/20 text-violet-400 text-xs"
             >
               {role.name}
             </span>
@@ -157,18 +157,18 @@ const Users = () => {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
-          <UsersIcon className="text-neon-blue" size={40} />
+          <UsersIcon className="text-cyan-400" size={40} />
           <div>
-            <h1 className="text-3xl font-bold neon-text">Users</h1>
-            <p className="text-gray-400">Manage system users</p>
+            <h1 className="text-3xl font-bold text-white">Users</h1>
+            <p className="text-gray-400">Manage system users and access</p>
           </div>
         </div>
         <Button
           variant="primary"
-          icon={Plus}
+          icon={UserPlus}
           onClick={() => setShowCreateModal(true)}
         >
-          Create User
+          Add User
         </Button>
       </div>
 
@@ -232,7 +232,7 @@ const Users = () => {
                   type="checkbox"
                   checked={selectedRoleIds.includes(role.id)}
                   onChange={() => toggleRole(role.id)}
-                  className="w-4 h-4 rounded border-gray-600 text-neon-blue focus:ring-neon-blue"
+                  className="w-4 h-4 rounded border-gray-600 text-cyan-400 focus:ring-cyan-400"
                 />
                 <span className="flex-1">{role.name}</span>
               </label>
