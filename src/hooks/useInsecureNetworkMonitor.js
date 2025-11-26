@@ -28,16 +28,46 @@ export const useInsecureNetworkMonitor = (isEnabled = true) => {
                 return dateB - dateA;
             });
             const latestCampaignId = sortedCampaigns[0].id;
+
+            console.log('[useInsecureNetworkMonitor] Fetching networks for campaign:', latestCampaignId);
+
             const networksRes = await wifiAPI.getNetworks(latestCampaignId);
             const networksData = Array.isArray(networksRes) ? networksRes : (networksRes.data || []);
-            const insecureNets = networksData.filter(n => !n.security || n.security === 'Open');
+
+            console.log('[useInsecureNetworkMonitor] Raw networks data:', networksData.length, 'networks');
+
+            // Filter for insecure networks (check both 'crypto' and 'security' fields)
+            const insecureNets = networksData.filter(n => {
+                const crypto = (n.crypto || n.security || '').toLowerCase();
+                const isInsecure = crypto === '' || crypto === 'open' || crypto === 'opn' || !crypto;
+
+                // Debug: log first insecure network found
+                if (isInsecure && insecureNets.length === 0) {
+                    console.log('[useInsecureNetworkMonitor] First insecure network found:', {
+                        ssid: n.ssid,
+                        bssid: n.bssid,
+                        crypto: n.crypto,
+                        original_crypto: crypto
+                    });
+                }
+
+                return isInsecure;
+            });
             const currentCount = insecureNets.length;
+
+            console.log('[useInsecureNetworkMonitor] Total networks:', networksData.length);
+            console.log('[useInsecureNetworkMonitor] Insecure networks:', currentCount);
+            console.log('[useInsecureNetworkMonitor] Previous count:', previousCountRef.current);
+            console.log('[useInsecureNetworkMonitor] Is first load:', isFirstLoadRef.current);
 
             setInsecureNetworks(insecureNets);
             setInsecureCount(currentCount);
 
             if (!isFirstLoadRef.current && currentCount > previousCountRef.current) {
                 const newCount = currentCount - previousCountRef.current;
+
+                console.log('[useInsecureNetworkMonitor] 🚨 NEW INSECURE NETWORKS DETECTED!', newCount);
+
                 setHasNewAlert(true);
                 toast.error(
                     `⚠️ ${newCount} new insecure network${newCount > 1 ? 's' : ''} detected!`,

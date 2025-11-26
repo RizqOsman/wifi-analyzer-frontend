@@ -26,6 +26,10 @@ export const useRogueAPMonitor = (isEnabled = true) => {
             const rogueAPData = response.data || [];
             const currentCount = rogueAPData.length;
 
+            console.log('[useRogueAPMonitor] Rogue APs found:', currentCount);
+            console.log('[useRogueAPMonitor] Previous count:', previousCountRef.current);
+            console.log('[useRogueAPMonitor] Is first load:', isFirstLoadRef.current);
+
             setRogueAPs(rogueAPData);
             setRogueAPCount(currentCount);
 

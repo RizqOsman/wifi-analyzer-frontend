@@ -37,6 +37,28 @@ const Networks = () => {
     fetchNetworks();
   }, []);
 
+  // Smart polling - auto-refresh only when campaign is active
+  useEffect(() => {
+    // Only poll if session status is 'active' (campaign is running)
+    if (sessionStatus !== 'active') {
+      console.log('[Networks] Polling stopped - no active campaign');
+      return;
+    }
+
+    console.log('[Networks] Polling started - campaign is active');
+
+    // Poll every 5 seconds when campaign is active
+    const interval = setInterval(() => {
+      console.log('[Networks] Auto-refreshing data...');
+      fetchNetworks();
+    }, 5000);
+
+    return () => {
+      console.log('[Networks] Polling cleanup');
+      clearInterval(interval);
+    };
+  }, [sessionStatus]);
+
   // --- CORE LOGIC: DATA FETCHING ---
   const fetchNetworks = async () => {
     setLoading(true);
@@ -50,6 +72,7 @@ const Networks = () => {
       const campaigns = response.campaign || response || [];
 
       let currentId = null;
+      let campaignStatus = 'offline';
 
       if (campaigns && campaigns.length > 0) {
         // Sorting manual untuk memastikan yang diambil adalah yang paling baru (DESC)
@@ -62,9 +85,16 @@ const Networks = () => {
 
         const latestCampaign = sortedCampaigns[0];
         currentId = latestCampaign.id;
+        campaignStatus = latestCampaign.status; // Get campaign status
 
         setActiveSessionId(currentId);
-        setSessionStatus('active');
+
+        // Set session status based on campaign status
+        if (campaignStatus === 'active') {
+          setSessionStatus('active');
+        } else {
+          setSessionStatus('offline');
+        }
       } else {
         // Jika tidak ada campaign sama sekali
         setSessionStatus('offline');
