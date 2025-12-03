@@ -47,13 +47,13 @@ const Login = () => {
             <div className="inline-flex p-4 rounded-full bg-cyan-500/10 mb-4 border border-cyan-500/20 shadow-lg shadow-cyan-500/10">
               <Shield className="w-12 h-12 text-cyan-400" />
             </div>
-            <h1 className="text-4xl font-bold mb-2 text-white tracking-tight">
+            {/* <h1 className="text-4xl font-bold mb-2 text-white tracking-tight">
               R.A.D.A.R
-            </h1>
+            </h1> */}
             <p className="text-cyan-400 font-medium tracking-widest text-sm uppercase mb-2">
               Rogue Access Detection & Analysis Response
             </p>
-            <p className="text-gray-300">Sign in to access your security dashboard</p>
+            {/* <p className="text-gray-300">Sign in to access your security dashboard</p> */}
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-5">
@@ -70,7 +70,7 @@ const Login = () => {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   className="block w-full pl-10 pr-3 py-2.5 border border-gray-700 rounded-lg leading-5 bg-dark-800 text-gray-300 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-cyan-500/50 focus:border-cyan-500 transition-all duration-200 sm:text-sm"
-                  placeholder="admin@example.com"
+                  placeholder="Type your email address"
                   required
                 />
               </div>
@@ -89,11 +89,11 @@ const Login = () => {
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   className="block w-full pl-10 pr-3 py-2.5 border border-gray-700 rounded-lg leading-5 bg-dark-800 text-gray-300 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-cyan-500/50 focus:border-cyan-500 transition-all duration-200 sm:text-sm"
-                  placeholder="••••••••"
+                  placeholder="Type your password"
                   required
                 />
               </div>
-              <div className="flex justify-end mt-1">
+              {/* <div className="flex justify-end mt-1">
                 <button
                   type="button"
                   onClick={() => toast('Please contact your system administrator to reset your password.', { icon: '🔐' })}
@@ -101,7 +101,7 @@ const Login = () => {
                 >
                   Forgot password?
                 </button>
-              </div>
+              </div> */}
             </div>
 
             <button
@@ -118,15 +118,15 @@ const Login = () => {
           </form>
 
           {/* Development Hint */}
-          <div className="mt-6 p-3 bg-cyan-900/20 border border-cyan-500/20 rounded-lg text-xs text-cyan-200/80">
+          {/* <div className="mt-6 p-3 bg-cyan-900/20 border border-cyan-500/20 rounded-lg text-xs text-cyan-200/80">
             <p className="font-bold mb-1 flex items-center gap-1">
               <span className="w-2 h-2 rounded-full bg-cyan-400 animate-pulse"></span>
               Development Mode
             </p>
             <p>Use <span className="font-mono bg-black/30 px-1 rounded">admin@example.com</span> / <span className="font-mono bg-black/30 px-1 rounded">password</span></p>
-          </div>
+          </div> */}
 
-          <div className="mt-6 text-center">
+          {/* <div className="mt-6 text-center">
             <p className="text-xs text-gray-500 flex items-center justify-center gap-1">
               <Shield size={12} className="text-cyan-500/50" />
               Protected by enterprise-grade security
@@ -134,7 +134,7 @@ const Login = () => {
             <p className="text-[10px] text-gray-600 mt-2">
               Need help? Contact your system administrator.
             </p>
-          </div>
+          </div> */}
         </div>
       </motion.div>
     </div>

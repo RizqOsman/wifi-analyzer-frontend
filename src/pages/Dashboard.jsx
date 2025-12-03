@@ -9,6 +9,7 @@ import InsecureNetworkAlert from '../components/InsecureNetworkAlert';
 import { campaignsAPI } from '../api/campaigns';
 import { wifiAPI } from '../api/wifi';
 import { attacksAPI } from '../api/attacks';
+import { dashboardAPI } from '../api/dashboard';
 import { useRogueAPMonitor } from '../hooks/useRogueAPMonitor';
 import { useInsecureNetworkMonitor } from '../hooks/useInsecureNetworkMonitor';
 
@@ -21,6 +22,14 @@ const Dashboard = () => {
     secureNetworks: 0,
     vulnerableNetworks: 0,
   });
+  const [statsTrend, setStatsTrend] = useState({
+    campaigns: 0,
+    networks: 0,
+    activeAttacks: 0,
+    rogueAPs: 0,
+  });
+  const [healthData, setHealthData] = useState({ score: 0, status: 'unknown' });
+  const [recentActivity, setRecentActivity] = useState([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [soundMuted, setSoundMuted] = useState(false);
@@ -91,6 +100,32 @@ const Dashboard = () => {
         secureNetworks: secureCount,
         vulnerableNetworks: liveInsecureCount || vulnerableCount,
       });
+
+      // Fetch dashboard dynamic data (trends, health, activity)
+      try {
+        const [trendsData, healthResponse, activityData] = await Promise.all([
+          dashboardAPI.getStats(),
+          dashboardAPI.getHealth(),
+          dashboardAPI.getActivity(10),
+        ]);
+
+        // Update trends
+        setStatsTrend({
+          campaigns: trendsData.campaigns?.change || 0,
+          networks: trendsData.networks?.change || 0,
+          activeAttacks: trendsData.activeAttacks?.change || 0,
+          rogueAPs: trendsData.rogueAPs?.change || 0,
+        });
+
+        // Update health
+        setHealthData(healthResponse);
+
+        // Update activity
+        setRecentActivity(activityData || []);
+      } catch (dashErr) {
+        console.error('Error fetching dashboard dynamic data:', dashErr);
+        // Continue even if dashboard APIs fail
+      }
 
       if (manual) {
         toast.success('Dashboard refreshed');
@@ -165,7 +200,7 @@ const Dashboard = () => {
   const securityMetrics = [
     { label: 'Network Coverage', value: Math.round((stats.secureNetworks / (stats.networks || 1)) * 100), color: 'bg-cyan-500' },
     { label: 'Threat Detection Rate', value: Math.round(((stats.networks - stats.rogueAPs) / (stats.networks || 1)) * 100), color: 'bg-violet-500' },
-    { label: 'System Health', value: stats.campaigns > 0 ? 98 : 0, color: 'bg-emerald-500' },
+    { label: 'System Health', value: healthData.score || 0, color: 'bg-emerald-500' },
   ];
 
   return (
@@ -242,9 +277,24 @@ const Dashboard = () => {
                   <div className={`p-3 rounded-lg bg-dark-900/50 ${stat.colorClass}`}>
                     <stat.icon size={24} />
                   </div>
-                  <span className={`text-xs font-medium px-2 py-1 rounded-full bg-dark-900/50 ${stat.colorClass}`}>
-                    +2.5%
-                  </span>
+                  {(() => {
+                    // Get trend for this stat
+                    let trend = 0;
+                    if (stat.title === 'Total Campaigns') trend = statsTrend.campaigns;
+                    else if (stat.title === 'Secure Networks') trend = statsTrend.networks;
+                    else if (stat.title === 'Active Attacks') trend = statsTrend.activeAttacks;
+                    else if (stat.title === 'Rogue APs Detected') trend = statsTrend.rogueAPs;
+
+                    const isPositive = trend >= 0;
+                    const trendColor = isPositive ? 'text-emerald-400' : 'text-red-400';
+                    const bgColor = isPositive ? 'bg-emerald-500/10' : 'bg-red-500/10';
+
+                    return (
+                      <span className={`text-xs font-medium px-2 py-1 rounded-full ${bgColor} ${trendColor}`}>
+                        {trend >= 0 ? '+' : ''}{trend.toFixed(1)}%
+                      </span>
+                    );
+                  })()}
                 </div>
                 <h3 className="text-gray-400 text-sm font-medium">{stat.title}</h3>
                 <p className={`text-2xl font-bold mt-1 ${stat.colorClass}`}>
@@ -291,27 +341,83 @@ const Dashboard = () => {
             Recent Activity
           </h3>
           <div className="space-y-4">
-            <div className="flex items-center gap-3 p-3 rounded-lg bg-cyan-500/10 border border-cyan-500/20">
-              <Radio className="text-cyan-400" size={20} />
-              <div className="flex-1">
-                <p className="text-sm font-medium text-white">Campaign Started</p>
-                <p className="text-xs text-gray-400">Latest scan initiated</p>
-              </div>
-            </div>
-            <div className="flex items-center gap-3 p-3 rounded-lg bg-emerald-500/10 border border-emerald-500/20">
-              <Wifi className="text-emerald-400" size={20} />
-              <div className="flex-1">
-                <p className="text-sm font-medium text-white">Networks Detected</p>
-                <p className="text-xs text-gray-400">{stats.networks} networks found</p>
-              </div>
-            </div>
-            <div className="flex items-center gap-3 p-3 rounded-lg bg-violet-500/10 border border-violet-500/20">
-              <Zap className="text-violet-400" size={20} />
-              <div className="flex-1">
-                <p className="text-sm font-medium text-white">Active Monitoring</p>
-                <p className="text-xs text-gray-400">System operational</p>
-              </div>
-            </div>
+            {recentActivity.length > 0 ? (
+              recentActivity.slice(0, 3).map((activity, idx) => {
+                // Map icon names to lucide icons
+                const iconMap = {
+                  'radio': Radio,
+                  'wifi': Wifi,
+                  'play': Activity,
+                  'square': Activity,
+                  'shield-alert': ShieldAlert,
+                  'alert-triangle': AlertTriangle,
+                  'zap': Zap,
+                };
+                const IconComponent = iconMap[activity.icon] || Activity;
+
+                // Map color names to Tailwind classes
+                const colorMap = {
+                  'cyan': 'text-cyan-400 bg-cyan-500/10 border-cyan-500/20',
+                  'emerald': 'text-emerald-400 bg-emerald-500/10 border-emerald-500/20',
+                  'violet': 'text-violet-400 bg-violet-500/10 border-violet-500/20',
+                  'pink': 'text-pink-400 bg-pink-500/10 border-pink-500/20',
+                  'yellow': 'text-yellow-400 bg-yellow-500/10 border-yellow-500/20',
+                  'gray': 'text-gray-400 bg-gray-500/10 border-gray-500/20',
+                };
+                const colorClass = colorMap[activity.color] || 'text-gray-400 bg-gray-500/10 border-gray-500/20';
+
+                // Format timestamp
+                const formatTime = (timestamp) => {
+                  try {
+                    const date = new Date(timestamp);
+                    const now = new Date();
+                    const diff = Math.floor((now - date) / 1000); // seconds
+
+                    if (diff < 60) return 'Just now';
+                    if (diff < 3600) return `${Math.floor(diff / 60)}m ago`;
+                    if (diff < 86400) return `${Math.floor(diff / 3600)}h ago`;
+                    return `${Math.floor(diff / 86400)}d ago`;
+                  } catch {
+                    return 'Recently';
+                  }
+                };
+
+                return (
+                  <div key={idx} className={`flex items-center gap-3 p-3 rounded-lg border ${colorClass.split(' ')[1]} ${colorClass.split(' ')[2]}`}>
+                    <IconComponent className={colorClass.split(' ')[0]} size={20} />
+                    <div className="flex-1">
+                      <p className="text-sm font-medium text-white">{activity.message}</p>
+                      <p className="text-xs text-gray-400">{formatTime(activity.timestamp)}</p>
+                    </div>
+                  </div>
+                );
+              })
+            ) : (
+              // Fallback static activities when no data available
+              <>
+                <div className="flex items-center gap-3 p-3 rounded-lg bg-cyan-500/10 border border-cyan-500/20">
+                  <Radio className="text-cyan-400" size={20} />
+                  <div className="flex-1">
+                    <p className="text-sm font-medium text-white">Campaign Started</p>
+                    <p className="text-xs text-gray-400">Latest scan initiated</p>
+                  </div>
+                </div>
+                <div className="flex items-center gap-3 p-3 rounded-lg bg-emerald-500/10 border border-emerald-500/20">
+                  <Wifi className="text-emerald-400" size={20} />
+                  <div className="flex-1">
+                    <p className="text-sm font-medium text-white">Networks Detected</p>
+                    <p className="text-xs text-gray-400">{stats.networks} networks found</p>
+                  </div>
+                </div>
+                <div className="flex items-center gap-3 p-3 rounded-lg bg-violet-500/10 border border-violet-500/20">
+                  <Zap className="text-violet-400" size={20} />
+                  <div className="flex-1">
+                    <p className="text-sm font-medium text-white">Active Monitoring</p>
+                    <p className="text-xs text-gray-400">System operational</p>
+                  </div>
+                </div>
+              </>
+            )}
           </div>
         </Card>
 
