@@ -54,8 +54,9 @@ const Campaigns = () => {
       const createResponse = await campaignsAPI.create({ name: newCampaignName, status: 'active' });
       console.log('Campaign created:', createResponse);
 
-      // Step 2: Get the newly created campaign ID
-      const newCampaignId = createResponse.id || createResponse.data?.id;
+      // Step 2: Get the newly created campaign ID from the correct response structure
+      // Backend returns: {campaign: {id: ..., name: ..., status: ...}}
+      const newCampaignId = createResponse.campaign?.id;
 
       if (newCampaignId) {
         // Step 3: Automatically start scanning
@@ -63,6 +64,7 @@ const Campaigns = () => {
         await campaignsAPI.start(newCampaignId);
         toast.success('Campaign created and scanning started!');
       } else {
+        console.error('Failed to extract campaign ID from response:', createResponse);
         toast.success('Campaign created successfully');
       }
 
